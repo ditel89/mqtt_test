@@ -63,7 +63,7 @@ class Publisher:
 
     def start(self):
         self.mqttc.connect(host_url, port)
-        self.mqttc.loop_start()
+        #self.mqttc.loop_start()
 
     def stop(self):
         self.mqttc.loop_stop()
@@ -76,19 +76,23 @@ class Publisher:
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     print('test mqtt using python')
-    type_mqtt = "pub"
-    if type_mqtt == "pub":
-        publisher = Publisher()
-        publisher.start()
 
-        publisher.publish('ccc')
-        time.sleep(1)
+    def on_message(client, userdata, msg):
+        rx_message = str(msg.payload.decode("utf-8"))
+        print(rx_message)
+        if rx_message == 'q':
+            print('stop subscriber')
+            subscriber.stop()
+        elif rx_message == '1':
+            publisher = Publisher()
+            publisher.start()
+            publisher.publish('ccc')
+            #time.sleep(1)
+        # print(str(msg.payload.decode("utf-8")))
 
-    if type_mqtt == "sub":
-        def on_message(client, userdata, msg):
-            print(str(msg.payload.decode("utf-8")))
+    subscriber = Subscriber(on_message)
+    subscriber.start()
 
-        subscriber = Subscriber(on_message)
-        subscriber.start()
+
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
